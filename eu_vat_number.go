@@ -26,7 +26,7 @@ type CountryVatNumber struct {
 }
 
 type EuroVatNumber struct {
-	CountryCodes map[string]CountryVatNumber
+	ISOCountryCodes map[string]CountryVatNumber
 }
 
 func stringIsNumeric(str string) bool {
@@ -40,7 +40,7 @@ func stringIsNumeric(str string) bool {
 }
 
 func (evt EuroVatNumber) CountryCodeAvailable(countryCode string) bool {
-	if _, ok := evt.CountryCodes[countryCode]; ok {
+	if _, ok := evt.ISOCountryCodes[countryCode]; ok {
 		return true
 	}
 	return false
@@ -72,7 +72,7 @@ func (evt EuroVatNumber) IsValid(id string, options ...string) (bool, error) {
 		return false, errors.New("incorrect country code")
 	}
 
-	if _, ok := evt.CountryCodes[isoCountryCode]; !ok {
+	if _, ok := evt.ISOCountryCodes[isoCountryCode]; !ok {
 		return false, errors.New("vat number not available")
 	}
 
@@ -365,7 +365,7 @@ func New() *EuroVatNumber {
 
 	euroVatNumber := new(EuroVatNumber)
 
-	euroVatNumber.CountryCodes = map[string]CountryVatNumber{
+	euroVatNumber.ISOCountryCodes = map[string]CountryVatNumber{
 		"AT": {
 			CountryName:  "Austria",
 			Format:       "8 digits and the prefix 'U'",
