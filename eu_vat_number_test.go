@@ -11,7 +11,7 @@ import "testing"
 
 func TestEuroVatNumber(t *testing.T) {
 
-	query := New()
+	query, _ := New()
 
 	if !query.CountryCodeAvailable("ES") {
 		t.Fatal("country code not available")
