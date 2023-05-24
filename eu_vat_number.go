@@ -14,6 +14,7 @@ package eu_vat_number
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -26,7 +27,8 @@ type CountryVatNumber struct {
 }
 
 type EuroVatNumber struct {
-	ISOCountryCodes map[string]CountryVatNumber
+	ISOCountryCodes    map[string]CountryVatNumber
+	DefaultCountryCode string
 }
 
 func stringIsNumeric(str string) bool {
@@ -59,6 +61,10 @@ func (evt EuroVatNumber) IsValid(id string, options ...string) (bool, error) {
 	isoCountryCode, number := func() (string, string) {
 		if len(options) == 1 {
 			return strings.ToUpper(options[0]), strings.ToUpper(id)
+		}
+
+		if evt.DefaultCountryCode != "" {
+			return evt.DefaultCountryCode, strings.ToUpper(id)
 		}
 
 		return strings.ToUpper(id[:2]), strings.ToUpper(id[2:])
@@ -361,7 +367,11 @@ func (evt EuroVatNumber) IsValid(id string, options ...string) (bool, error) {
 	return false, nil
 }
 
-func New() *EuroVatNumber {
+func New(options ...string) (*EuroVatNumber, error) {
+
+	if len(options) > 1 {
+		return nil, errors.New("wrong number of parameters")
+	}
 
 	euroVatNumber := new(EuroVatNumber)
 
@@ -579,5 +589,22 @@ func New() *EuroVatNumber {
 		},
 	}
 
-	return euroVatNumber
+	if len(options) == 1 {
+		if options[0] == "" {
+			return nil, errors.New("the country code is empty!")
+		}
+
+		if len(options[0]) < 2 || len(options[0]) > 3 {
+			return nil, errors.New("wrong country code!")
+		}
+
+		cc := strings.ToUpper(options[0])
+		if _, ok := euroVatNumber.ISOCountryCodes[cc]; !ok {
+			return nil, fmt.Errorf("the caountry code %s is not available!", options[0])
+		}
+
+		euroVatNumber.DefaultCountryCode = cc
+	}
+
+	return euroVatNumber, nil
 }
