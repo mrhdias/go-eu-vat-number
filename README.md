@@ -1,6 +1,10 @@
 # go-eu-vat-number
 EU VAT Number Validation
 
+This module is used to validate the EU VAT number of e-commerce customer orders.
+In some cases, it uses lazy and minimal evaluation. Please check the rules applied to each country.
+Fixes are welcome.
+
 ## Installation
 ```
 go get github.com/mrhdias/go-eu-vat-number
