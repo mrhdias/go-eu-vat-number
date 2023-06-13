@@ -2,7 +2,7 @@
 // Copyright 2023 The Eu Vat Number Authors. All rights reserved.
 // Use of this source code is governed by a MIT License
 // license that can be found in the LICENSE file.
-// Last Modification: 2023-05-24 10:32:17
+// Last Modification: 2023-06-13 17:27:24
 //
 // References:
 // https://gist.github.com/gaiqus/4e3ee860e61f9667e911d01d816c020e#file-eu_vat_number_validation
@@ -169,37 +169,9 @@ func (evt EuroVatNumber) IsValid(id string, options ...string) (bool, error) {
 		}
 
 	case "ES": // Spain
-		if len(number) != 9 {
-			return false, nil
-		}
-
-		if !(number[0] < 'A' || number[0] > 'Z') &&
-			stringIsNumeric(number[1:]) { // // /^(ES)([A-Z]\d{8})$/
-			return true, nil
-
-		}
-		if ((number[0] >= 'A' || number[0] <= 'H') ||
-			(number[0] >= 'N' || number[0] <= 'S') ||
-			number[0] == 'W') &&
-			stringIsNumeric(number[1:8]) &&
-			!(number[8] < 'A' || number[8] > 'J') { // /^(ES)([A-H|N-S|W]\d{7}[A-J])$/
-			return true, nil
-
-		}
-		if ((number[0] >= 'A' || number[0] <= 'H') ||
-			(number[0] >= 'N' || number[0] <= 'S') ||
-			number[0] == 'W') &&
-			stringIsNumeric(number[1:8]) &&
-			!(number[8] < 'A' || number[8] > 'Z') { // /^(ES)([0-9|Y|Z]\d{7}[A-Z])$/
-			return true, nil
-
-		}
-		if strings.ContainsAny(string(number[0]), "KLMX") &&
-			stringIsNumeric(number[1:8]) &&
-			!(number[8] < 'A' || number[8] > 'Z') { // /^(ES)([K|L|M|X]\d{7}[A-Z])$/
+		if isValidESVatNumber(number) {
 			return true, nil
 		}
-
 	case "EU": // EU type
 		// /^(EU)(\d{9})$/
 		if len(number) == 9 &&
@@ -235,23 +207,7 @@ func (evt EuroVatNumber) IsValid(id string, options ...string) (bool, error) {
 		}
 
 	case "IE": // Ireland
-		if len(number) == 8 {
-			return false, nil
-		}
-
-		if stringIsNumeric(number[:7]) &&
-			!(number[7] < 'A' || number[7] > 'W') { // /^(IE)(\d{7}[A-W])$/
-			return true, nil
-		}
-		if !(number[0] < '7' || number[0] > '9') &&
-			!(number[1] < 'A' || number[1] > 'Z') &&
-			stringIsNumeric(number[2:7]) &&
-			!(number[7] < 'A' || number[7] > 'W') { // /^(IE)([7-9][A-Z\*\+)]\d{5}[A-W])$/
-			return true, nil
-		}
-		if stringIsNumeric(number[:7]) &&
-			!(number[7] < 'A' || number[7] > 'W') &&
-			(number[8] == 'A' || number[8] == 'H') { // /^(IE)(\d{7}[A-W][AH])$/
+		if isValidIEVatNumber(number) {
 			return true, nil
 		}
 
@@ -315,8 +271,8 @@ func (evt EuroVatNumber) IsValid(id string, options ...string) (bool, error) {
 
 	case "PT": // Portugal
 		// /^(PT)(\d{9})$/
-		if len(number) == 9 &&
-			stringIsNumeric(number) {
+
+		if isValidPTVatNumber(number) {
 			return true, nil
 		}
 
