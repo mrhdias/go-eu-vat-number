@@ -2,7 +2,7 @@
 // Copyright 2023 The Eu Vat Number Authors. All rights reserved.
 // Use of this source code is governed by a MIT License
 // license that can be found in the LICENSE file.
-// Last Modification: 2023-06-13 17:26:58
+// Last Modification: 2023-06-14 11:50:43
 //
 // References:
 // https://pt.wikipedia.org/wiki/Número_de_identificação_fiscal#Exemplo_de_validação_em_Go_[6]
@@ -81,38 +81,30 @@ func isValidPTVatNumber(number string) bool {
 	}
 
 	// validate prefixes
-	result := func() int {
-		// Tax Identification Number (NIF) is a service that allows the registration of a
+	if !func() bool {
+		// Tax Identification Number (NIF "123") is a service that allows the registration of a
 		// individual citizen. The initial numbers "45" correspond to non-resident citizens
 		// who only obtain income subject to definitive withholding tax in Portuguese territory;
-		if strings.ContainsAny(number[:1], "123") ||
-			strings.EqualFold(number[:2], "45") {
-			return 1
-		}
 
-		// For other cases
-
-		if strings.ContainsAny(number[:1], "568") {
-			return 2
+		if strings.ContainsAny(number[:1], "123568") {
+			return true
 		}
 
 		if _, ok := map[string]bool{
-			"70": true, "71": true, "72": true, "74": true,
-			"75": true, "77": true, "78": true, "79": true,
-			"90": true, "91": true, "98": true, "99": true}[number[:2]]; ok {
-			return 2
+			"45": true, "70": true, "71": true, "72": true, "74": true,
+			"75": true, "77": true, "78": true, "79": true, "90": true,
+			"91": true, "98": true, "99": true}[number[:2]]; ok {
+			return true
 		}
 
-		return 0
-	}()
-	if result < 2 {
-		return result == 1
+		return false
+	}() {
+		return false
 	}
 
 	// calculate check-digit
-
 	sum := 0
-	for i, char := range number {
+	for i, char := range number[:8] {
 		value, err := strconv.Atoi(string(char))
 		if err != nil {
 			return false
