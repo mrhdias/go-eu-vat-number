@@ -2,7 +2,7 @@
 // Copyright 2023 The Eu Vat Number Authors. All rights reserved.
 // Use of this source code is governed by a MIT License
 // license that can be found in the LICENSE file.
-// Last Modification: 2023-05-24 10:32:11
+// Last Modification: 2023-06-14 11:54:03
 //
 
 package eu_vat_number
@@ -28,6 +28,15 @@ func TestEuroVatNumber(t *testing.T) {
 	}
 
 	got, err = query.IsValid("A2345678J", "ES")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got != want {
+		t.Errorf("got %t, want %t", got, want)
+	}
+
+	got, err = query.IsValid("999999990", "PT")
 	if err != nil {
 		t.Fatal(err)
 	}
