@@ -2,7 +2,7 @@
 // Copyright 2023 The Eu Vat Number Authors. All rights reserved.
 // Use of this source code is governed by a MIT License
 // license that can be found in the LICENSE file.
-// Last Modification: 2023-06-14 11:50:43
+// Last Modification: 2025-03-11 18:22:01
 //
 // References:
 // https://pt.wikipedia.org/wiki/Número_de_identificação_fiscal#Exemplo_de_validação_em_Go_[6]
@@ -11,7 +11,6 @@
 package eu_vat_number
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -73,59 +72,43 @@ func isValidIEVatNumber(number string) bool {
 	return false
 }
 
+// isValidPTVatNumber validates a Portuguese VAT number (NIF).
 func isValidPTVatNumber(number string) bool {
-
-	if len(number) != 9 &&
-		stringIsNumeric(number) {
+	// Check if the number is exactly 9 digits
+	if len(number) != 9 || !stringIsNumeric(number) {
 		return false
 	}
 
-	// validate prefixes
-	if !func() bool {
-		// Tax Identification Number (NIF "123") is a service that allows the registration of a
-		// individual citizen. The initial numbers "45" correspond to non-resident citizens
-		// who only obtain income subject to definitive withholding tax in Portuguese territory;
+	// Tax Identification Number (NIF "123") is a service that allows the registration of a
+	// individual citizen. The initial numbers "45" correspond to non-resident citizens
+	// who only obtain income subject to definitive withholding tax in Portuguese territory;
 
-		if strings.ContainsAny(number[:1], "123568") {
-			return true
-		}
-
-		if _, ok := map[string]bool{
-			"45": true, "70": true, "71": true, "72": true, "74": true,
-			"75": true, "77": true, "78": true, "79": true, "90": true,
-			"91": true, "98": true, "99": true}[number[:2]]; ok {
-			return true
-		}
-
-		return false
-	}() {
+	// Validate prefixes
+	validPrefixes := map[string]bool{
+		"45": true, "70": true, "71": true, "72": true, "74": true,
+		"75": true, "77": true, "78": true, "79": true, "90": true,
+		"91": true, "98": true, "99": true,
+	}
+	if !strings.ContainsAny(number[:1], "123568") && !validPrefixes[number[:2]] {
 		return false
 	}
 
-	// calculate check-digit
+	// Calculate check digit
 	sum := 0
 	for i, char := range number[:8] {
-		value, err := strconv.Atoi(string(char))
-		if err != nil {
-			return false
-		}
-		sum += value * (9 - i)
+		value := int(char - '0') // Convert digit rune to integer
+		sum += value * (9 - i)   // Apply weights 9 to 2
 	}
 
 	rmd := sum % 11
-	ckd := 0
-	switch rmd {
-	case 0, 1:
+	var ckd int
+	if rmd == 0 || rmd == 1 {
 		ckd = 0
-	default:
+	} else {
 		ckd = 11 - rmd
 	}
 
-	// compare the provided check digit with the calculated one
-	compare, err := strconv.Atoi(string(number[8]))
-	if err != nil {
-		return false
-	}
-
+	// Compare calculated check digit with the provided one
+	compare := int(number[8] - '0')
 	return compare == ckd
 }

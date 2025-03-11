@@ -2,7 +2,7 @@
 // Copyright 2023 The Eu Vat Number Authors. All rights reserved.
 // Use of this source code is governed by a MIT License
 // license that can be found in the LICENSE file.
-// Last Modification: 2023-06-13 17:27:24
+// Last Modification: 2025-03-11 18:23:05
 //
 // References:
 // https://gist.github.com/gaiqus/4e3ee860e61f9667e911d01d816c020e#file-eu_vat_number_validation
@@ -31,6 +31,7 @@ type EuroVatNumber struct {
 	DefaultCountryCode string
 }
 
+// stringIsNumeric checks if a string contains only digits.
 func stringIsNumeric(str string) bool {
 	for _, char := range str {
 		if char < '0' || char > '9' {
